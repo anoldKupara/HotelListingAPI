@@ -14,25 +14,25 @@ namespace HotelListing.API.Controllers
     [ApiController]
     public class HotelsController : ControllerBase
     {
-        private readonly HotelListingDbContext _context;
+        private readonly HotelListingDbContext _dBcontext;
 
-        public HotelsController(HotelListingDbContext context)
+        public HotelsController(HotelListingDbContext dBcontext)
         {
-            _context = context;
+            _dBcontext = dBcontext;
         }
 
         // GET: api/Hotels
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Hotel>>> GetHotels()
         {
-            return await _context.Hotels.ToListAsync();
+            return await _dBcontext.Hotels.ToListAsync();
         }
 
         // GET: api/Hotels/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Hotel>> GetHotel(int id)
         {
-            var hotel = await _context.Hotels.FindAsync(id);
+            var hotel = await _dBcontext.Hotels.FindAsync(id);
 
             if (hotel == null)
             {
@@ -52,11 +52,11 @@ namespace HotelListing.API.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(hotel).State = EntityState.Modified;
+            _dBcontext.Entry(hotel).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await _dBcontext.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -78,8 +78,8 @@ namespace HotelListing.API.Controllers
         [HttpPost]
         public async Task<ActionResult<Hotel>> PostHotel(Hotel hotel)
         {
-            _context.Hotels.Add(hotel);
-            await _context.SaveChangesAsync();
+            _dBcontext.Hotels.Add(hotel);
+            await _dBcontext.SaveChangesAsync();
 
             return CreatedAtAction("GetHotel", new { id = hotel.Id }, hotel);
         }
@@ -88,21 +88,21 @@ namespace HotelListing.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteHotel(int id)
         {
-            var hotel = await _context.Hotels.FindAsync(id);
+            var hotel = await _dBcontext.Hotels.FindAsync(id);
             if (hotel == null)
             {
                 return NotFound();
             }
 
-            _context.Hotels.Remove(hotel);
-            await _context.SaveChangesAsync();
+            _dBcontext.Hotels.Remove(hotel);
+            await _dBcontext.SaveChangesAsync();
 
             return NoContent();
         }
 
         private bool HotelExists(int id)
         {
-            return _context.Hotels.Any(e => e.Id == id);
+            return _dBcontext.Hotels.Any(e => e.Id == id);
         }
     }
 }
