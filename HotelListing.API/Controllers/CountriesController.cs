@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HotelListing.API.Data;
 using HotelListing.API.Models;
+using HotelListing.API.DTOs.Countries;
 
 namespace HotelListing.API.Controllers
 {
@@ -76,8 +77,13 @@ namespace HotelListing.API.Controllers
         // POST: api/Countries
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Country>> PostCountry(Country country)
+        public async Task<ActionResult<Country>> PostCountry(CreateCountryDto createCountryDto)
         {
+            var country = new Country
+            {
+                Name = createCountryDto.Name,
+                ShortName = createCountryDto.ShortName
+            };
             _dBcontext.Countries.Add(country);
             await _dBcontext.SaveChangesAsync();
 
