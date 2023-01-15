@@ -82,12 +82,15 @@ namespace HotelListing.API.Controllers
         [HttpPost]
         public async Task<ActionResult<Hotel>> PostHotel(CreateHotelDto createHotelDto)
         {
-            var hotel = new Hotel
-            {
-                Name = createHotelDto.Name,
-                Address = createHotelDto.Address,
-                Rating = createHotelDto.Rating
-            };
+            //var hotel = new Hotel
+            //{
+            //    Name = createHotelDto.Name,
+            //    Address = createHotelDto.Address,
+            //    Rating = createHotelDto.Rating
+            //};
+
+            var hotel = _mapper.Map<Hotel>(createHotelDto);
+
             _dBcontext.Hotels.Add(hotel);
             await _dBcontext.SaveChangesAsync();
 
