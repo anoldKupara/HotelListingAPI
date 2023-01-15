@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using HotelListing.API.Data;
 using HotelListing.API.Models;
 using HotelListing.API.DTOs.Countries;
+using AutoMapper;
 
 namespace HotelListing.API.Controllers
 {
@@ -16,10 +17,12 @@ namespace HotelListing.API.Controllers
     public class CountriesController : ControllerBase
     {
         private readonly HotelListingDbContext _dBcontext;
+        private readonly IMapper _mapper;
 
-        public CountriesController(HotelListingDbContext dBcontext)
+        public CountriesController(HotelListingDbContext dBcontext, IMapper mapper)
         {
             _dBcontext = dBcontext;
+            _mapper = mapper;
         }
 
         // GET: api/Countries
