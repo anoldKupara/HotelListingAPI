@@ -82,11 +82,12 @@ namespace HotelListing.API.Controllers
         [HttpPost]
         public async Task<ActionResult<Country>> PostCountry(CreateCountryDto createCountryDto)
         {
-            var country = new Country
-            {
-                Name = createCountryDto.Name,
-                ShortName = createCountryDto.ShortName
-            };
+            //var country = new Country
+            //{
+            //    Name = createCountryDto.Name,
+            //    ShortName = createCountryDto.ShortName
+            //};
+            var country = _mapper.Map<Country>(createCountryDto);
             _dBcontext.Countries.Add(country);
             await _dBcontext.SaveChangesAsync();
 
