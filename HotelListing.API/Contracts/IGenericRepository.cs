@@ -1,6 +1,6 @@
 ﻿namespace HotelListing.API.Contracts
 {
-    public interface IGenericRepository<T> where T : class
+    public interface ICountriesRepository<T> where T : class
     {
         Task<T> GetAsync(int? id);
         Task<List<T>> GetAllAsync();
