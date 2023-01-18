@@ -1,6 +1,8 @@
-﻿namespace HotelListing.API.Contracts
+﻿using HotelListing.API.Models;
+
+namespace HotelListing.API.Contracts
 {
-    public class IHotelRepository
+    public interface IHotelRepository : ICountriesRepository<Hotel>
     {
     }
 }

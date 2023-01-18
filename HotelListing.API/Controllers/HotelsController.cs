@@ -9,6 +9,7 @@ using HotelListing.API.Data;
 using HotelListing.API.Models;
 using HotelListing.API.DTOs.Hotels;
 using AutoMapper;
+using HotelListing.API.Contracts;
 
 namespace HotelListing.API.Controllers
 {
@@ -16,27 +17,28 @@ namespace HotelListing.API.Controllers
     [ApiController]
     public class HotelsController : ControllerBase
     {
-        private readonly HotelListingDbContext _dBcontext;
         private readonly IMapper _mapper;
+        private readonly IHotelRepository _hotelRepository;
 
-        public HotelsController(HotelListingDbContext dBcontext, IMapper mapper)
+        public HotelsController( IMapper mapper, IHotelRepository hotelRepository)
         {
-            _dBcontext = dBcontext;
+            //_dBcontext = dBcontext;
             _mapper = mapper;
+            _hotelRepository = hotelRepository;
         }
 
         // GET: api/Hotels
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Hotel>>> GetHotels()
         {
-            return await _dBcontext.Hotels.ToListAsync();
+            return await _hotelRepository.GetAllAsync();
         }
 
         // GET: api/Hotels/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Hotel>> GetHotel(int id)
         {
-            var hotel = await _dBcontext.Hotels.FindAsync(id);
+            var hotel = await _hotelRepository.GetAsync(id);
 
             if (hotel == null)
             {
@@ -56,15 +58,13 @@ namespace HotelListing.API.Controllers
                 return BadRequest();
             }
 
-            _dBcontext.Entry(hotel).State = EntityState.Modified;
-
             try
             {
-                await _dBcontext.SaveChangesAsync();
+                await _hotelRepository.UpdateAsync(hotel);
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!HotelExists(id))
+                if (!await HotelExists(id))
                 {
                     return NotFound();
                 }
@@ -91,8 +91,8 @@ namespace HotelListing.API.Controllers
 
             var hotel = _mapper.Map<Hotel>(createHotelDto);
 
-            _dBcontext.Hotels.Add(hotel);
-            await _dBcontext.SaveChangesAsync();
+            await _hotelRepository.AddAsync(hotel);
+            
 
             return CreatedAtAction("GetHotel", new { id = hotel.Id }, hotel);
         }
@@ -101,21 +101,20 @@ namespace HotelListing.API.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteHotel(int id)
         {
-            var hotel = await _dBcontext.Hotels.FindAsync(id);
+            var hotel = await _hotelRepository.GetAsync(id);
             if (hotel == null)
             {
                 return NotFound();
             }
 
-            _dBcontext.Hotels.Remove(hotel);
-            await _dBcontext.SaveChangesAsync();
+            await _hotelRepository.DeleteAsync(hotel);
 
             return NoContent();
         }
 
-        private bool HotelExists(int id)
+        private async Task<bool> HotelExists(int id)
         {
-            return _dBcontext.Hotels.Any(e => e.Id == id);
+            return await _hotelRepository.Exists(id);
         }
     }
 }
