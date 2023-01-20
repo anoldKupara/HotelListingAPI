@@ -20,7 +20,7 @@ namespace HotelListing.API.Controllers
         private readonly IMapper _mapper;
         private readonly IHotelRepository _hotelRepository;
 
-        public HotelsController( IMapper mapper, IHotelRepository hotelRepository)
+        public HotelsController(IMapper mapper, IHotelRepository hotelRepository)
         {
             //_dBcontext = dBcontext;
             _mapper = mapper;
@@ -32,7 +32,7 @@ namespace HotelListing.API.Controllers
         public async Task<ActionResult<IEnumerable<GetHotelDto>>> GetHotels()
         {
             var hotels = await _hotelRepository.GetAllAsync();
-            
+
             var results = _mapper.Map<IList<GetHotelDto>>(hotels);
 
             return Ok(results);
@@ -86,17 +86,9 @@ namespace HotelListing.API.Controllers
         [HttpPost]
         public async Task<ActionResult<Hotel>> PostHotel(CreateHotelDto createHotelDto)
         {
-            //var hotel = new Hotel
-            //{
-            //    Name = createHotelDto.Name,
-            //    Address = createHotelDto.Address,
-            //    Rating = createHotelDto.Rating
-            //};
-
             var hotel = _mapper.Map<Hotel>(createHotelDto);
 
             await _hotelRepository.AddAsync(hotel);
-            
 
             return CreatedAtAction("GetHotel", new { id = hotel.Id }, hotel);
         }
