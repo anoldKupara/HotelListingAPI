@@ -22,25 +22,22 @@ namespace HotelListing.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Register([FromBody] ApiUserDto userDto)
+
+        public async Task<IActionResult> Register([FromBody] ApiUserDto apiUserDto)
         {
-            if (!ModelState.IsValid)
+            var errors = await _authManager.Register(apiUserDto);
+
+            if (errors.Any())
             {
+                foreach (var error in errors)
+                {
+                    ModelState.AddModelError(error.Code, error.Description);
+                }
                 return BadRequest(ModelState);
             }
 
-            var result = await _authManager.Register(userDto);
-            if (!result.Any())
-            {
-                return Ok();
-            }
-
-            foreach (var error in result)
-            {
-                ModelState.TryAddModelError(error.Code, error.Description);
-            }
-
-            return BadRequest(ModelState);
+            return Ok();
         }
+
     }
 }
