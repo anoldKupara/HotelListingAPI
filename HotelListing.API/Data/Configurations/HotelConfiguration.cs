@@ -1,86 +1,22 @@
-﻿
-using HotelListing.API.Data.Configurations;
-using HotelListing.API.Models;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using HotelListing.API.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace HotelListing.API.Data
+namespace HotelListing.API.Data.Configurations
 {
-    public class HotelListingDbContext : IdentityDbContext<ApiUser>
+    public class HotelConfiguration : IEntityTypeConfiguration<Hotel>
     {
-        public HotelListingDbContext(DbContextOptions options) : base(options)
+        public void Configure(EntityTypeBuilder<Hotel> builder)
         {
-        }
-
-        public DbSet<Country> Countries { get; set; }
-        public DbSet<Hotel> Hotels { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-            modelBuilder.ApplyConfiguration(new RoleConfiguration());
-            modelBuilder.ApplyConfiguration(new CountryConfiguration());
-            modelBuilder.ApplyConfiguration(new HotelConfiguration());
-            {
-                modelBuilder.Entity<Country>().HasData(
-                    new Country
-                    {
-                        Id = 1,
-                        Name = "Jamaica",
-                        ShortName = "JM"
-                    },
-                    new Country
-                    {
-                        Id = 2,
-                        Name = "Bahamas",
-                        ShortName = "BS"
-                    },
-                    new Country
-                    {
-                        Id = 3,
-                        Name = "Cayman Islands",
-                        ShortName = "CI"
-                    },
-                    new Country
-                    {
-                        Id = 4,
-                        Name = "Cuba",
-                        ShortName = "CU"
-                    },
-                    new Country
-                    {
-                        Id = 5,
-                        Name = "Dominican Republic",
-                        ShortName = "DR"
-                    },
-                    new Country
-                    {
-                        Id = 6,
-                        Name = "Haiti",
-                        ShortName = "HT"
-                    },
-                    new Country
-                    {
-                        Id = 7,
-                        Name = "Trinidad and Tobago",
-                        ShortName = "TT"
-                    },
-                    new Country
-                    {
-                        Id = 8,
-                        Name = "United States",
-                        ShortName = "US"
-                    }
-            );
-                modelBuilder.Entity<Hotel>().HasData(
-                    new Hotel
-                    {
-                        Id = 1,
-                        Name = "Sandals Royal Bahamian",
-                        Address = "Nassau, New Providence Island",
-                        CountryId = 2,
-                        Rating = 4.5
-                    },
+            builder.HasData(
+                new Hotel
+                {
+                    Id = 1,
+                    Name = "Sandals Royal Bahamian",
+                    Address = "Nassau, New Providence Island",
+                    CountryId = 2,
+                    Rating = 4.5
+                },
                 new Hotel
                 {
                     Id = 2,
@@ -161,10 +97,6 @@ namespace HotelListing.API.Data
                     CountryId = 1,
                     Rating = 4.5
                 });
-            }
         }
     }
 }
-
-
-
