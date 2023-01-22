@@ -27,21 +27,24 @@ namespace HotelListing.API.Repository
 
         public async Task<AuthResponseDto> Login(LoginDto loginDto)
         {
-            bool isValidUser;
-            try
-            {
-                var user = await _userManager.FindByEmailAsync(loginDto.Email);
-                var validPassword = await _userManager.CheckPasswordAsync(user, loginDto.Password);
 
-                return validPassword;
-            }
-            catch (Exception)
-            {
 
-                throw;
+            var user = await _userManager.FindByEmailAsync(loginDto.Email);
+
+            var isValidUser = await _userManager.CheckPasswordAsync(user, loginDto.Password);
+
+            if (user == null || isValidUser == false)
+            {
+                return null;
             }
 
-            return isValidUser;
+            var token = await GenerateToken(user);
+
+            return new AuthResponseDto
+            {
+                Token = token,
+                UserId = user.Id
+            };
         }
         public async Task<IEnumerable<IdentityError>> Register(ApiUserDto userDto)
         {
@@ -84,12 +87,12 @@ namespace HotelListing.API.Repository
             .Union(userClaims).Union(roleClaims);
 
             var token = new JwtSecurityToken(
-                issuer : _configuration["JwtSettings:Issuer"],
-                audience : _configuration["JwtSettings:Audience"],
-                claims : claims,
-                expires : DateTime.Now.AddMinutes(Convert.ToInt32(_configuration
+                issuer: _configuration["JwtSettings:Issuer"],
+                audience: _configuration["JwtSettings:Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(Convert.ToInt32(_configuration
                 ["JwtSettings:DurationInMinutes"])),
-                signingCredentials : credentials
+                signingCredentials: credentials
                 );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
