@@ -25,7 +25,7 @@ namespace HotelListing.API.Repository
             _configuration = configuration;
         }
 
-        public async Task<bool> Login(LoginDto loginDto)
+        public async Task<AuthResponseDto> Login(LoginDto loginDto)
         {
             bool isValidUser;
             try
