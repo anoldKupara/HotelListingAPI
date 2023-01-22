@@ -75,9 +75,9 @@ namespace HotelListing.API.Repository
 
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub, user.Email),
+                new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Email, user.Email),
                 new Claim("uid",user.Id),
 
             }
@@ -87,7 +87,9 @@ namespace HotelListing.API.Repository
                 issuer : _configuration["JwtSettings:Issuer"],
                 audience : _configuration["JwtSettings:Audience"],
                 claims : claims,
-                expires : DateTime.Now.AddMinutes(_configuration["JwtSettings:DurationInMinutes"]))
+                expires : DateTime.Now.AddMinutes(Convert.ToInt32(_configuration
+                ["JwtSettings:DurationInMinutes"])),
+                signingCredentials : credentials
                 );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
