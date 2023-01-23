@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+
 using System.Security.Claims;
 using System.Text;
 
@@ -112,9 +113,42 @@ namespace HotelListing.API.Repository
             return newRefreshToken;
         }
 
-        public Task<AuthResponseDto> VerifyRefreshToken(AuthResponseDto request)
+        public async Task<AuthResponseDto> VerifyRefreshToken(AuthResponseDto request)
         {
-            throw new NotImplementedException();
+            var jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+
+            var tokenContent = jwtSecurityTokenHandler.ReadJwtToken(request.Token);
+
+            var tokenCountainer = jwtSecurityTokenHandler.ReadJwtToken(request.Token);
+
+            var userName = tokenContent.Claims.ToList().FirstOrDefault(q => q.Type ==
+            System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Email).Value;
+
+            _user = await _userManager.FindByNameAsync(userName);
+
+            if (_user == null)
+            {
+                return null;
+            }
+
+            var isValidRefreshToken = await _userManager.VerifyUserTokenAsync(_user, "HotelListingApi",
+                "RefreshToken", request.RefreshToken);
+
+            if (isValidRefreshToken)
+            {
+                var token = await GenerateToken(_user);
+
+                return new AuthResponseDto
+                {
+                    Token = token,
+                    UserId = _user.Id,
+                    RefreshToken = await CreateRefreshToken()
+                };
+            }
+
+            await _userManager.UpdateSecurityStampAsync(_user);
+
+            return null;
         }
     }
 }
