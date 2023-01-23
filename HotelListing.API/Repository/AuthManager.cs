@@ -17,7 +17,7 @@ namespace HotelListing.API.Repository
         private readonly IMapper _mapper;
         private readonly UserManager<ApiUser> _userManager;
         private readonly IConfiguration _configuration;
-
+        private ApiUser _user;
         public AuthManager(IMapper mapper, UserManager<ApiUser> userManager, IConfiguration configuration)
         {
             _mapper = mapper;
@@ -29,33 +29,33 @@ namespace HotelListing.API.Repository
         {
 
 
-            var user = await _userManager.FindByEmailAsync(loginDto.Email);
+            _user = await _userManager.FindByEmailAsync(loginDto.Email);
 
-            var isValidUser = await _userManager.CheckPasswordAsync(user, loginDto.Password);
+            var isValidUser = await _userManager.CheckPasswordAsync(_user, loginDto.Password);
 
-            if (user == null || isValidUser == false)
+            if (_user == null || isValidUser == false)
             {
                 return null;
             }
 
-            var token = await GenerateToken(user);
+            var token = await GenerateToken(_user);
 
             return new AuthResponseDto
             {
                 Token = token,
-                UserId = user.Id
+                UserId = _user.Id
             };
         }
         public async Task<IEnumerable<IdentityError>> Register(ApiUserDto userDto)
         {
-            var user = _mapper.Map<ApiUser>(userDto);
-            user.UserName = userDto.Email;
+            _user = _mapper.Map<ApiUser>(userDto);
+            _user.UserName = userDto.Email;
 
-            var result = await _userManager.CreateAsync(user, userDto.Password);
+            var result = await _userManager.CreateAsync(_user, userDto.Password);
 
             if (result.Succeeded)
             {
-                var addToRoleResult = await _mapper.AddToRoleAsync(user, "User", _userManager);
+                var addToRoleResult = await _mapper.AddToRoleAsync(_user, "User", _userManager);
                 if (!addToRoleResult.Succeeded)
                 {
                     return addToRoleResult.Errors;
@@ -96,6 +96,25 @@ namespace HotelListing.API.Repository
                 );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public async Task<string> CreateRefreshToken()
+        {
+            await _userManager.RemoveAuthenticationTokenAsync(_user, "HotelListingApi",
+                "RefreshToken");
+
+            var newRefreshToken = await _userManager.GenerateUserTokenAsync(_user,
+                "HotelListingApi", "RefreshToken");
+
+            var result = await _userManager.SetAuthenticationTokenAsync(_user, "HotelListingApi",
+                "RefreshToken", newRefreshToken);
+
+            return newRefreshToken;
+        }
+
+        public Task<AuthResponseDto> VerifyRefreshToken(AuthResponseDto request)
+        {
+            throw new NotImplementedException();
         }
     }
 }

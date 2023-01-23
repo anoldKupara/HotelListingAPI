@@ -100,7 +100,7 @@ namespace HotelListing.API.Controllers
 
         // DELETE: api/Hotels/5
         [HttpDelete("{id}")]
-        [Authorize(Roles ="Adminstrator")]
+        [Authorize(Roles ="Administrator")]
         public async Task<IActionResult> DeleteHotel(int id)
         {
             var hotel = await _hotelRepository.GetAsync(id);
